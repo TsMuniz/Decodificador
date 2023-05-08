@@ -1,17 +1,23 @@
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import styles from './styles.module.css'
 
 
 export default function MainPage() {
-      <input placeholder='coloque sua palavra aqui'/>
   const [text, setText] = useState<string>('')
   const [showEncodedText, setShowEncodedText] = useState<boolean>(false)
   const [showDecodedText, setShowDecodedText] = useState<boolean>(false)
 
+  useEffect(() => {
+    if(!text) {
+      setShowDecodedText(false)
+      setShowEncodedText(false)
+    }
+  }, [text])
+
 
   const encodeText = (text: string): string => {
     return text
-      .replace(/[e]/g, 'enter')
+      .replace(/[eE]/g, 'enter')
       .replace(/[iI]/g, 'imes')
       .replace(/[aA]/g, 'ai')
       .replace(/[oO]/g, 'ober')
@@ -27,34 +33,52 @@ export default function MainPage() {
       .replace(/(ufat)/g, 'u')
   }
 
+  const cleanTextBox = () => {
+    setShowDecodedText(false)
+    setShowEncodedText(false)
+    setText('')
+  }
+
+
+
   return (
     <div
       className={styles.pageContainer}
     >
-      <h1>Decodificador de Textos</h1>
+      <h1 className={styles.title}>Decodificador de Textos</h1>
 
       <h3>Digite seu texto aqui!</h3>
 
       <input 
         value={text}
+        className={styles.textInput}
         onChange={(e: ChangeEvent<HTMLInputElement>) => setText(e.currentTarget.value)}
       />
 
-      <button
-        onClick={() => setShowEncodedText(!showEncodedText)}
+      <div
+        className={styles.buttonsContainer}
       >
-        Criptografar
-      </button>
+        <button
+          disabled={showDecodedText === true}
+          onClick={() => setShowEncodedText(true)}
+        >
+          Criptografar
+        </button>
+        <button
+          disabled={showEncodedText === true}
+          onClick={() => setShowDecodedText(true)}
+        >
+          Descriptografar
+        </button>
+      </div>
+
       <button
-        onClick={() => setShowDecodedText(!showDecodedText)}
+        onClick={cleanTextBox}
       >
-        Desriptografar
+        Limpe a caixa de texto
       </button>
 
-      <button>Limpe a caixa de texto</button>
-      <div>{text}</div>
-      <div>{showEncodedText && encodeText(text)}</div>
-      <div>{showDecodedText && decodeText(text)}</div>
+      <div>{showEncodedText && encodeText(text) || showDecodedText && decodeText(text)}</div>
     </div>
   )
 }
